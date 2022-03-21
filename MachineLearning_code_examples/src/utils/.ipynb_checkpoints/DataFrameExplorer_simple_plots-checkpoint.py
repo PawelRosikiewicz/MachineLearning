@@ -43,18 +43,39 @@ import seaborn as sns
 
 
 # Function, .................................................................
-def scatter2D(X, y, features=(0,1)):
+def scatter2D(X, y, features=(0,1), cmap="hsv", figsize=(4,3)):
     ''' plots first two features in numpy array, with scatterplot
         labels are shown as differernt colors
         . X - np.array, numeric dtype, 
         . y - vetor with labels,  
         . features = tuple, selected feaures to plot, integers, 
+        . figsize - tuple, two int, for figure size
     '''
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4,3))
-    for class_name in np.unique(y).tolist():
+    # set style: default
+    plt.style.use("default")
+    
+    # select colors for plot
+    marker_colors = plt.get_cmap(cmap)(np.linspace(0, 0.8, len(np.unique(y).tolist())))
+    
+    # scatterplot
+    'created in loop, to have label handles for legend'
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize, facecolor="white")
+    for i, class_name in enumerate(np.unique(y).tolist()):
         ax.scatter(X[y==class_name,features[0]], 
                    X[y==class_name,features[1]], 
-                   s=1, label=str(class_name))
+                   s=5, alpha=0.8, 
+                   color=marker_colors[i],
+                   label=str(class_name)
+                  )
     ax.set(xlabel=f"featue No{features[0]}", ylabel=f"feature No{features[1]}")
     sns.despine()
+    
+    # add legend
+    lg = plt.legend(scatterpoints=1, frameon=True, 
+              labelspacing=1, title="legend")
+    frame = lg.get_frame()
+    frame.set_color("lightgrey")
+    frame.set_edgecolor("grey")
+    
+    # finally, 
     plt.show();
