@@ -79,3 +79,64 @@ def scatter2D(X, y, features=(0,1), cmap="hsv", figsize=(4,3)):
     
     # finally, 
     plt.show();
+    
+    
+    
+    
+# Fucntion, .............................
+def plot_decision_surface(X, y, model, scatter_dct=dict()):
+    ''' Plots decision surface for classyficaiton models with 2D data
+        Caution, this function works only for 2D input data, because it has to create all combinaitons of value
+        . X       - input data for building a model
+        . y       - target variable,
+        . model  - clasifier, wiht fucntion predict.proba()
+        . scatter_dct - dct with additional arguments for scatterplot
+    '''
+       
+    # find labels
+    labels = pd.Series(y).unique().tolist()
+    
+    # plot scatter witch points in X,y
+    for label in labels:
+        label_idx = y==label
+        plt.scatter(X[:, 0][label_idx], 
+                    X[:, 1][label_idx],
+                         label=label,
+                        **scatter_dct
+                      )
+    
+    # ..(b).. Create a grid of values (all combinations of values)
+    lim          = [X.min(), X.max()]
+    x_values     = np.linspace(*lim, num=40)
+    y_values     = np.linspace(*lim, num=40)
+    xx, yy       = np.meshgrid(x_values, y_values)  # meshgrid, returns two arrays 40x40
+    points       = np.c_[xx.flatten(), yy.flatten()]
+
+    """
+        meshgrid:
+        -------------------------------------------------
+        for y retunrs an rrays as foolow    3 3 3 3 ... 3
+                                            2 2 2 2 ... 2
+        and for x, number are repeated      . . . .     .
+        in each column,                     0 0 0 0 ... 0
+    """
+    
+    # ..(c).. Calulate Probability for positive class (setosa) 
+    #.        at every point on a mesh
+    probs = model.predict_proba(points)[:, 1]
+
+    
+    # ..(d).. Draw decision boundary (p=0.5)
+    zz = probs.reshape(xx.shape) # makes array 40x40
+    plt.contour(xx, yy, zz, levels=[0.5], colors='gray') # line on top of probits, 
+    
+    # ..(e).. Plot decision surface with level curves
+    plt.contourf(xx, yy, zz, 10, alpha=0.3, cmap=plt.cm.coolwarm) # red-blue colors below all points, 
+
+    # ....... Add labels
+    plt.xlabel('petal length (cm)')
+    plt.ylabel('petal width (cm)')
+    plt.legend()
+    plt.colorbar(label='probability')
+    plt.show();
+   
